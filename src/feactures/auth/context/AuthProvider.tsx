@@ -101,13 +101,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     });
   };
 
-  interface RegisterData {
-    name: string;
+  interface RegistroUsuario {
     email: string;
     password: string;
   }
 
-  const register = async (userData: RegisterData) => {
+  const register = async (userData: RegistroUsuario) => {
     setAuthState({ ...authState, loading: true, error: null });
 
     try {

@@ -7,18 +7,61 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-node_modules
-dist
-dist-ssr
+# Dependency directories
+node_modules/
+
+# Build output
+dist/
+build/
+dist-ssr/
+.out/ # Next.js
+.next/
+.next/cache
+
+# Production environment
+.env
+.env.*.local
 *.local
 
-# Editor directories and files
-.vscode/*
-!.vscode/extensions.json
-.idea
+# System files
 .DS_Store
+Thumbs.db
+
+# Editor directories and files
+.vscode/
+!.vscode/extensions.json
+.idea/
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
+
+# Optional cache files
+.cache/
+.nyc_output/
+coverage/
+
+# Testing
+jest.config.js
+coverage/
+test-results/
+cypress/screenshots/
+cypress/videos/
+
+# TypeScript
+*.tsbuildinfo
+
+# Misc
+*.tgz
+*.pem
+*.key
+*.crt
+
+# Storybook
+.storybook-out/
+storybook-static/
+
+# Others
+*.orig
+*.patch

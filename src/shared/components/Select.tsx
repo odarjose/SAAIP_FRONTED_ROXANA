@@ -1,7 +1,7 @@
-import React, { forwardRef } from "react";
+import { forwardRef } from "react";
 import { cn } from "../lib/Utils";
 
-import { SelectOption, SelectProps } from "../interface/Interfaces";
+import { SelectProps } from "../interface/Interfaces";
 
 export const Select = forwardRef<HTMLSelectElement, SelectProps>(
   ({ label, error, options, className, ...props }, ref) => {

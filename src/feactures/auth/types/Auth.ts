@@ -34,5 +34,5 @@ export interface RegistroUsuario {
 export interface AuthContextType extends AuthState {
   login: (credentials: LoginCredentials) => Promise<void>;
   logout: () => void;
-  register: (userData: any) => Promise<void>;
+  register: (userData: RegistroUsuario) => Promise<void>;
 }
