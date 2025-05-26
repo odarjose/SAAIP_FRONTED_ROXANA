@@ -6,6 +6,11 @@ import LoginPage from "../feactures/auth/pages/LoginPage";
 import Dashboard from "../feactures/dashboard/pages/DasboardPage";
 import AsistenciasPage from "../feactures/asistencia/pages/AsistenciaPage";
 import AulasPage from "../feactures/aula/pages/AulaPages";
+import DocentesPage from "../feactures/docentes/pages/DocentesPage";
+import TurnosPage from "../feactures/turnos/pages/TurnosPage";
+import ReportesPage from "../feactures/reportes/pages/ReportesPage";
+import UsuariosPage from "../feactures/usuarios/pages/UsuariosPage";
+import ConfiguracionPage from "../feactures/configuracion/page/ConfiguracionPage";
 
 export const AppRouter: React.FC = () => {
   return (
@@ -19,38 +24,23 @@ export const AppRouter: React.FC = () => {
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/asistencias" element={<AsistenciasPage />} />
             <Route path="/aulas" element={<AulasPage />} />
-
-            {/* Rutas adicionales */}
             <Route
               path="/usuarios"
-              element={
-                <div className="p-4">Página de Usuarios (en desarrollo)</div>
-              }
+              element={<UsuariosPage />}
             />
             <Route
-              path="/profesores"
-              element={
-                <div className="p-4">Página de Profesores (en desarrollo)</div>
-              }
+              path="/docentes"
+              element={<DocentesPage />}
             />
-            <Route
-              path="/turnos"
-              element={
-                <div className="p-4">Página de Turnos (en desarrollo)</div>
-              }
-            />
+            <Route path="/turnos" element={<TurnosPage />} />
             <Route
               path="/reportes"
-              element={
-                <div className="p-4">Página de Reportes (en desarrollo)</div>
-              }
+              element={<ReportesPage />}
             />
             <Route
               path="/configuracion"
               element={
-                <div className="p-4">
-                  Página de Configuración (en desarrollo)
-                </div>
+                <ConfiguracionPage/>
               }
             />
           </Route>

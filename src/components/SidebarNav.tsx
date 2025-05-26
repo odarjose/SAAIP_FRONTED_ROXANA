@@ -29,7 +29,7 @@ const navItems: NavItem[] = [
   },
   {
     title: "Profesores",
-    href: "/profesores",
+    href: "/docentes",
     icon: <BookOpen size={20} />,
   },
   {

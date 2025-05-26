@@ -3,6 +3,7 @@ export type AvatarProps = {
   alt?: string;
   name?: string;
   surname?: string;
+  
   size?: "sm" | "md" | "lg";
   className?: string;
 };
@@ -60,6 +61,7 @@ export type CardDescriptionProps = {
 export type CardContentProps = {
   children: React.ReactNode;
   className?: string;
+  
 };
 
 export type CardFooterProps = {
