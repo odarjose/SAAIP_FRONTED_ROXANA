@@ -51,10 +51,10 @@ const DocentesPage: React.FC = () => {
   // Estado para modal de detalle y edición
   const [detalleDocente, setDetalleDocente] = useState<DocenteResponseDTO | null>(null);
   const [editandoDocente, setEditandoDocente] = useState<DocenteResponseDTO | null>(null);
-  const [editId, setEditId] = useState<number | null>(null); // Nuevo estado para el id
-  const [editForm, setEditForm] = useState<PartialDocente>({});
-  const [editError, setEditError] = useState<string | null>(null);
-  const [editLoading, setEditLoading] = useState(false);
+  const [, setEditId] = useState<number | null>(null); // Nuevo estado para el id
+  const [, setEditForm] = useState<PartialDocente>({});
+  const [, setEditError] = useState<string | null>(null);
+  
 
   // Estado para modal de registro
   const [isModalOpen, setIsModalOpen] = useState(false);

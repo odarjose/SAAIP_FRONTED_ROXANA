@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useDocenteStore } from '../store/StoreDocente';
-import { DocenteResponseDTO, RegistrarDocente, PartialDocente } from '../interface/InterfaceDocente';
+
 
 export const useDocentes = () => {
   const store = useDocenteStore();
