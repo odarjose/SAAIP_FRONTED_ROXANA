@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Card,
   CardContent,
@@ -7,70 +7,74 @@ import {
 } from "../../../shared/components/Card";
 import { Button } from "../../../shared/components/Button";
 import { Input } from "../../../shared/components/Input";
-import { Badge } from "../../../shared/components/Badge";
 import { 
   Calendar,
   Plus,
   Search,
   Pencil,
-  Trash,
-  Settings,
-  Clock,
-  Users
-} from 'lucide-react';
-import { getDiasSemanaString } from '../../../shared/lib/Utils';
+  
+  Clock} from 'lucide-react';
+
+import { useTurnoStore } from '../store/storeTurno';
+import { TurnoFormModal } from './TurnoFormPage';
+import { TurnoResponseDTO, RegisterTurno, PartialTurno } from '../interface/InterfaceTurnos';
 
 const TurnosPage: React.FC = () => {
-  const [searchTerm, setSearchTerm] = useState('');
+  const {
+    turnos,
+    fetchTurnos,
+    createTurno,
+    updateTurno,
+    setSearchTerm,
+    searchTerm
+  } = useTurnoStore();
 
-  // Datos de ejemplo para turnos
-  const turnos = [
-    {
-      id: '1',
-      nombre: 'Mañana',
-      horaInicio: '08:00',
-      horaFin: '12:00',
-      diasSemana: [1, 2, 3, 4, 5], // Lunes a Viernes
-      color: '#3B82F6', // primary-500
-      profesoresAsignados: 12,
-      estado: 'activo',
-    },
-    {
-      id: '2',
-      nombre: 'Tarde',
-      horaInicio: '14:00',
-      horaFin: '18:00',
-      diasSemana: [1, 2, 3, 4, 5],
-      color: '#10B981', // success-500
-      profesoresAsignados: 8,
-      estado: 'activo',
-    },
-    {
-      id: '3',
-      nombre: 'Noche',
-      horaInicio: '18:30',
-      horaFin: '22:30',
-      diasSemana: [1, 2, 3, 4, 5],
-      color: '#6B7280', // secondary-500
-      profesoresAsignados: 6,
-      estado: 'activo',
-    },
-    {
-      id: '4',
-      nombre: 'Fin de Semana',
-      horaInicio: '09:00',
-      horaFin: '13:00',
-      diasSemana: [6], // Sábado
-      color: '#F59E0B', // warning-500
-      profesoresAsignados: 4,
-      estado: 'inactivo',
-    },
-  ];
+  useEffect(() => {
+    fetchTurnos();
+  }, []);
 
-  const getEstadoBadge = (estado: string) => {
-    return estado === 'activo' 
-      ? <Badge variant="success">Activo</Badge>
-      : <Badge variant="secondary">Inactivo</Badge>;
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editandoTurno, setEditandoTurno] = useState<TurnoResponseDTO | null>(null);
+
+  // Filtrado por nombre
+  const turnosFiltrados = turnos.filter((turno) =>
+    turno.nombre.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  // Asignar color de franja según el nombre del turno
+  const getTurnoColor = (nombre: string) => {
+    if (nombre.toLowerCase().includes('mañana')) return 'bg-blue-500';
+    if (nombre.toLowerCase().includes('tarde')) return 'bg-yellow-500';
+    if (nombre.toLowerCase().includes('noche')) return 'bg-gray-700';
+    return 'bg-primary-500';
+  };
+
+  const handleOpenNuevo = () => {
+    setEditandoTurno(null);
+    setIsModalOpen(true);
+  };
+  const handleEditar = (turno: TurnoResponseDTO) => {
+    setEditandoTurno(turno);
+    setIsModalOpen(true);
+  };
+  const handleCloseModal = () => {
+    setEditandoTurno(null);
+    setIsModalOpen(false);
+  };
+  const handleSubmitTurno = async (data: RegisterTurno | PartialTurno, isEdit?: boolean) => {
+    try {
+      if (isEdit && editandoTurno) {
+        await updateTurno(editandoTurno.id_turno, data as PartialTurno);
+        setIsModalOpen(false);
+        return { success: true };
+      } else {
+        await createTurno(data as RegisterTurno);
+        setIsModalOpen(false);
+        return { success: true };
+      }
+    } catch (error) {
+      return { success: false, error: 'Error al guardar el turno' };
+    }
   };
 
   return (
@@ -81,7 +85,7 @@ const TurnosPage: React.FC = () => {
           <p className="text-secondary-600">Administración de horarios y turnos</p>
         </div>
         <div className="mt-4 md:mt-0 flex space-x-2">
-          <Button>
+          <Button onClick={handleOpenNuevo}>
             <Plus size={16} className="mr-2" />
             Nuevo Turno
           </Button>
@@ -106,56 +110,36 @@ const TurnosPage: React.FC = () => {
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
-            <div className="flex space-x-2">
-              <Button variant="outline" size="sm">
-                <Settings size={16} className="mr-1" />
-                Filtrar
-              </Button>
-            </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {turnos.map((turno) => (
-              <Card key={turno.id} className="overflow-hidden hover:shadow-md transition-shadow">
-                <div className="h-2 w-full" style={{ backgroundColor: turno.color }} />
+            {turnosFiltrados.map((turno) => (
+              <Card key={`turno-${turno.id_turno}`} className="overflow-hidden hover:shadow-lg transition-shadow card-hover">
+                <div className={`h-2 w-full ${getTurnoColor(turno.nombre)}`} />
                 <CardContent className="p-4">
                   <div className="flex justify-between items-start mb-4">
                     <div>
                       <h3 className="font-semibold text-lg">{turno.nombre}</h3>
                       <div className="flex items-center text-sm text-secondary-600">
                         <Clock size={16} className="mr-2" />
-                        {turno.horaInicio} - {turno.horaFin}
-                      </div>
-                    </div>
-                    {getEstadoBadge(turno.estado)}
-                  </div>
-
-                  <div className="space-y-3">
-                    <div>
-                      <p className="text-xs font-medium text-secondary-500 mb-1">Días:</p>
-                      <div className="flex items-center text-sm text-secondary-700">
-                        <Calendar size={16} className="mr-2" />
-                        {getDiasSemanaString(turno.diasSemana)}
-                      </div>
-                    </div>
-
-                    <div>
-                      <p className="text-xs font-medium text-secondary-500 mb-1">Profesores asignados:</p>
-                      <div className="flex items-center text-sm text-secondary-700">
-                        <Users size={16} className="mr-2" />
-                        {turno.profesoresAsignados} profesores
+                        {turno.hora_inicio} - {turno.hora_fin}
                       </div>
                     </div>
                   </div>
-
+                  <div className="space-y-2">
+                    <div>
+                      <span className="text-xs font-medium text-secondary-500">Grado: </span>
+                      <span className="text-secondary-700">{turno.grado}</span>
+                    </div>
+                    <div>
+                      <span className="text-xs font-medium text-secondary-500">Sección: </span>
+                      <span className="text-secondary-700">{turno.seccion}</span>
+                    </div>
+                  </div>
                   <div className="flex justify-between mt-4 pt-3 border-t border-secondary-200">
-                    <Button variant="ghost" size="sm" className="text-primary-600">
+                    <Button variant="ghost" size="sm" className="text-primary-600" onClick={() => handleEditar(turno)}>
                       <Pencil size={14} className="mr-1" />
                       Editar
-                    </Button>
-                    <Button variant="ghost" size="sm" className="text-error-600">
-                      <Trash size={14} className="mr-1" />
-                      Eliminar
                     </Button>
                   </div>
                 </CardContent>
@@ -164,6 +148,12 @@ const TurnosPage: React.FC = () => {
           </div>
         </CardContent>
       </Card>
+      <TurnoFormModal
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        onSubmit={handleSubmitTurno}
+        turno={editandoTurno}
+      />
     </div>
   );
 };
