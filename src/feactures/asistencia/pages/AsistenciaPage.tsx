@@ -1,133 +1,170 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Card,
   CardHeader,
   CardTitle,
   CardContent,
 } from "../../../shared/components/Card";
-
 import { Button } from "../../../shared/components/Button";
 import { Input } from "../../../shared/components/Input";
 import { Select } from "../../../shared/components/Select";
 import { SelectOption } from "../../../shared/interface/Interfaces";
 import { Badge } from "../../../shared/components/Badge";
 import { Avatar } from "../../../shared/components/Avatar";
-
+import { useAsistenciaStore } from "../store/storeAsistencia";
+import { useDocenteStore } from "../../docentes/store/StoreDocente";
+import { useTurnoStore } from "../../turnos/store/storeTurno";
+import { RegisterAsistencia, AsistenciaResponseDTO } from "../types/Asistencia";
 import {
   Calendar,
   Filter,
   Search,
   CheckCircle2,
   Clock,
-  AlertTriangle,
+  Eye,
+  XCircle,
 } from "lucide-react";
-
 import { formatDate } from "../../../shared/lib/Utils";
+import { Modal } from "../../../shared/components/Modal";
 
 const AsistenciasPage: React.FC = () => {
+  const {
+    asistencias,
+    fetchAsistencias,
+    createAsistencia,
+  } = useAsistenciaStore();
+
+  const {
+    profesores,
+    fetchProfesores,
+  } = useDocenteStore();
+
+  const {
+    turnos,
+    fetchTurnos,
+  } = useTurnoStore();
+
+  const [showRegisterForm, setShowRegisterForm] = useState(false);
+  const [showDetailModal, setShowDetailModal] = useState(false);
+  const [selectedAsistencia, setSelectedAsistencia] = useState<AsistenciaResponseDTO | null>(null);
   const [filtro, setFiltro] = useState({
     fecha: formatDate(new Date(), "yyyy-MM-dd"),
     profesor: "",
-    aula: "",
-    turno: "",
     estado: "",
   });
 
-  // Opciones de selección
-  const profesoresOptions: SelectOption[] = [
-    { value: "", label: "Todos los profesores" },
-    { value: "1", label: "Ana García" },
-    { value: "2", label: "Carlos Martínez" },
-    { value: "3", label: "Laura Rodríguez" },
-    { value: "4", label: "Miguel López" },
-  ];
+  const [newAsistencia, setNewAsistencia] = useState<RegisterAsistencia>({
+    id_docente: 0,
+    fecha: formatDate(new Date(), "yyyy-MM-dd"),
+    hora_entrada: "",
+    hora_salida: "",
+    tiempo_uso: 0,
+    estado: "REGISTRADO",
+  });
 
-  const aulasOptions: SelectOption[] = [
-    { value: "", label: "Todas las aulas" },
-    { value: "A-101", label: "A-101" },
-    { value: "B-203", label: "B-203" },
-    { value: "C-105", label: "C-105" },
-    { value: "D-302", label: "D-302" },
-  ];
+  useEffect(() => {
+    fetchAsistencias();
+    fetchProfesores();
+    fetchTurnos();
+  }, [fetchAsistencias, fetchProfesores, fetchTurnos]);
 
-  const turnosOptions: SelectOption[] = [
-    { value: "", label: "Todos los turnos" },
-    { value: "mañana", label: "Mañana" },
-    { value: "tarde", label: "Tarde" },
-    { value: "noche", label: "Noche" },
-  ];
+  // Filtrar docentes que tienen turno activo
+  const docentesConTurnoActivo = profesores.filter(docente => {
+    const turnoActivo = turnos.find(turno => 
+      turno.idDocente === docente.id_docente && 
+      turno.estado === true
+    );
+    return turnoActivo !== undefined;
+  });
+
+  // Opciones de selección solo para docentes con turno activo
+  const profesoresOptions: SelectOption[] = docentesConTurnoActivo.map((docente) => ({
+    value: docente.id_docente.toString(),
+    label: `${docente.nombres} ${docente.apellidos} - ${docente.dni}`,
+  }));
 
   const estadosOptions: SelectOption[] = [
     { value: "", label: "Todos los estados" },
-    { value: "a_tiempo", label: "A tiempo" },
-    { value: "tarde", label: "Tarde" },
-    { value: "ausente", label: "Ausente" },
-    { value: "pendiente", label: "Pendiente" },
+    { value: "REGISTRADO", label: "Registrado" },
+    { value: "INASISTENCIA", label: "Inasistencia" }
   ];
 
-  // Datos de ejemplo para asistencias
-  const asistencias = [
-    {
-      id: "1",
-      profesor: { id: "1", nombre: "Ana", apellido: "García" },
-      turno: { nombre: "Mañana", horaInicio: "08:00", horaFin: "12:00" },
-      aula: "A-101",
-      estadoEntrada: "a_tiempo",
-      estadoSalida: "a_tiempo",
-      horaEntrada: "07:55",
-      horaSalida: "12:05",
-      tieneInconsistencia: false,
-    },
-    {
-      id: "2",
-      profesor: { id: "2", nombre: "Carlos", apellido: "Martínez" },
-      turno: { nombre: "Mañana", horaInicio: "08:30", horaFin: "12:30" },
-      aula: "B-203",
-      estadoEntrada: "a_tiempo",
-      estadoSalida: "pendiente",
-      horaEntrada: "08:20",
-      horaSalida: null,
-      tieneInconsistencia: false,
-    },
-    {
-      id: "3",
-      profesor: { id: "3", nombre: "Laura", apellido: "Rodríguez" },
-      turno: { nombre: "Mañana", horaInicio: "08:30", horaFin: "12:30" },
-      aula: "C-105",
-      estadoEntrada: "tarde",
-      estadoSalida: "pendiente",
-      horaEntrada: "09:10",
-      horaSalida: null,
-      tieneInconsistencia: true,
-    },
-    {
-      id: "4",
-      profesor: { id: "4", nombre: "Miguel", apellido: "López" },
-      turno: { nombre: "Mañana", horaInicio: "08:00", horaFin: "12:00" },
-      aula: "D-302",
-      estadoEntrada: "ausente",
-      estadoSalida: "ausente",
-      horaEntrada: null,
-      horaSalida: null,
-      tieneInconsistencia: true,
-    },
-  ];
+  const handleRegisterSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    // Add validation for docente ID
+    if (!newAsistencia.id_docente || newAsistencia.id_docente === 0) {
+      alert("Por favor seleccione un profesor");
+      return;
+    }
+
+    // Validar que el docente tenga un turno activo
+    const turnoActivo = turnos.find(turno => 
+      turno.idDocente === newAsistencia.id_docente && 
+      turno.estado === true
+    );
+
+    if (!turnoActivo) {
+      alert("El profesor seleccionado no tiene un turno activo");
+      return;
+    }
+
+    try {
+      // Si el estado es INASISTENCIA, establecer tiempo_uso a 0
+      if (newAsistencia.estado === "INASISTENCIA") {
+        newAsistencia.tiempo_uso = 0;
+      } else {
+        // Calcular tiempo utilizado en minutos solo si no es inasistencia
+        if (newAsistencia.hora_entrada && newAsistencia.hora_salida) {
+          const [entradaHora, entradaMin] = newAsistencia.hora_entrada.split(':').map(Number);
+          const [salidaHora, salidaMin] = newAsistencia.hora_salida.split(':').map(Number);
+          
+          // Convertir a minutos totales
+          const entradaTotalMin = entradaHora * 60 + entradaMin;
+          const salidaTotalMin = salidaHora * 60 + salidaMin;
+          
+          // Calcular diferencia
+          let diffMins = salidaTotalMin - entradaTotalMin;
+          
+          // Si la hora de salida es menor que la de entrada, asumimos que es al día siguiente
+          if (diffMins < 0) {
+            diffMins += 24 * 60; // Agregar 24 horas en minutos
+          }
+          
+          newAsistencia.tiempo_uso = diffMins;
+        }
+      }
+
+      await createAsistencia(newAsistencia);
+      setShowRegisterForm(false);
+      setNewAsistencia({
+        id_docente: 0,
+        fecha: formatDate(new Date(), "yyyy-MM-dd"),
+        hora_entrada: "",
+        hora_salida: "",
+        tiempo_uso: 0,
+        estado: "REGISTRADO",
+      });
+    } catch (error) {
+      console.error("Error al registrar asistencia:", error);
+    }
+  };
 
   const getEstadoBadge = (estado: string) => {
-    switch (estado) {
-      case "a_tiempo":
-        return <Badge variant="success">A tiempo</Badge>;
-      case "tarde":
-        return <Badge variant="warning">Tarde</Badge>;
-      case "temprano":
-        return <Badge variant="warning">Temprano</Badge>;
-      case "ausente":
-        return <Badge variant="error">Ausente</Badge>;
-      case "pendiente":
-        return <Badge>Pendiente</Badge>;
-      default:
-        return <Badge>Pendiente</Badge>;
-    }
+    return estado === "REGISTRADO" ? (
+      <Badge variant="success">Registrado</Badge>
+    ) : (
+      <Badge variant="error">Inasistencia</Badge>
+    )
+  }
+
+  const handleViewDetails = (asistencia: AsistenciaResponseDTO) => {
+    setSelectedAsistencia(asistencia);
+    setShowDetailModal(true);
+  };
+
+  const getCurrentTurno = (docenteId: number) => {
+    return turnos.find(turno => turno.idDocente === docenteId && turno.estado);
   };
 
   return (
@@ -142,7 +179,7 @@ const AsistenciasPage: React.FC = () => {
           </p>
         </div>
         <div className="mt-4 md:mt-0 flex space-x-2">
-          <Button>
+          <Button onClick={() => setShowRegisterForm(true)}>
             <CheckCircle2 size={16} className="mr-2" />
             Registro de asistencia
           </Button>
@@ -157,7 +194,7 @@ const AsistenciasPage: React.FC = () => {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="flex items-center space-x-2">
               <Calendar size={18} className="text-secondary-400" />
               <Input
@@ -179,20 +216,6 @@ const AsistenciasPage: React.FC = () => {
             />
 
             <Select
-              options={aulasOptions}
-              value={filtro.aula}
-              onChange={(e) => setFiltro({ ...filtro, aula: e.target.value })}
-              label="Aula"
-            />
-
-            <Select
-              options={turnosOptions}
-              value={filtro.turno}
-              onChange={(e) => setFiltro({ ...filtro, turno: e.target.value })}
-              label="Turno"
-            />
-
-            <Select
               options={estadosOptions}
               value={filtro.estado}
               onChange={(e) => setFiltro({ ...filtro, estado: e.target.value })}
@@ -201,16 +224,108 @@ const AsistenciasPage: React.FC = () => {
           </div>
 
           <div className="flex justify-end mt-4">
-            <Button variant="outline" className="mr-2">
+            <Button variant="outline" className="mr-2" onClick={() => setFiltro({
+              fecha: formatDate(new Date(), "yyyy-MM-dd"),
+              profesor: "",
+              estado: "",
+            })}>
               Limpiar
             </Button>
-            <Button>
+            <Button onClick={() => fetchAsistencias()}>
               <Search size={16} className="mr-2" />
               Buscar
             </Button>
           </div>
         </CardContent>
       </Card>
+
+      <Modal
+        isOpen={showRegisterForm}
+        onClose={() => setShowRegisterForm(false)}
+        title="Registro de Nueva Asistencia"
+      >
+        <form onSubmit={handleRegisterSubmit} className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Select
+              options={profesoresOptions}
+              value={newAsistencia.id_docente.toString()}
+              onChange={(e) =>
+                setNewAsistencia({
+                  ...newAsistencia,
+                  id_docente: parseInt(e.target.value) || 0,
+                })
+              }
+              label="Profesor"
+              required
+            />
+            <div className="flex items-center space-x-2">
+              <Calendar size={18} className="text-secondary-400" />
+              <Input
+                type="date"
+                value={newAsistencia.fecha}
+                onChange={(e) =>
+                  setNewAsistencia({
+                    ...newAsistencia,
+                    fecha: e.target.value,
+                  })
+                }
+                required
+              />
+            </div>
+            <Input
+              type="time"
+              value={newAsistencia.hora_entrada}
+              onChange={(e) =>
+                setNewAsistencia({
+                  ...newAsistencia,
+                  hora_entrada: e.target.value,
+                })
+              }
+              label="Hora de Entrada"
+              required
+            />
+            <Input
+              type="time"
+              value={newAsistencia.hora_salida}
+              onChange={(e) =>
+                setNewAsistencia({
+                  ...newAsistencia,
+                  hora_salida: e.target.value,
+                })
+              }
+              label="Hora de Salida"
+              required
+            />
+            <div className="md:col-span-2">
+              <Select
+                options={[
+                  { value: "REGISTRADO", label: "Registrado" },
+                  { value: "INASISTENCIA", label: "Inasistencia" }
+                ]}
+                value={newAsistencia.estado}
+                onChange={(e) =>
+                  setNewAsistencia({
+                    ...newAsistencia,
+                    estado: e.target.value,
+                  })
+                }
+                label="Estado"
+                required
+              />
+            </div>
+          </div>
+          <div className="flex justify-end space-x-2 mt-6">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setShowRegisterForm(false)}
+            >
+              Cancelar
+            </Button>
+            <Button type="submit">Registrar Asistencia</Button>
+          </div>
+        </form>
+      </Modal>
 
       <Card>
         <CardHeader>
@@ -233,16 +348,16 @@ const AsistenciasPage: React.FC = () => {
                     Profesor
                   </th>
                   <th className="py-3 px-4 text-left text-sm font-medium text-secondary-500">
-                    Turno
+                    Fecha
                   </th>
                   <th className="py-3 px-4 text-left text-sm font-medium text-secondary-500">
-                    Aula
+                    Hora Entrada
                   </th>
                   <th className="py-3 px-4 text-left text-sm font-medium text-secondary-500">
-                    Entrada
+                    Hora Salida
                   </th>
                   <th className="py-3 px-4 text-left text-sm font-medium text-secondary-500">
-                    Salida
+                    Tiempo Utilizado
                   </th>
                   <th className="py-3 px-4 text-left text-sm font-medium text-secondary-500">
                     Estado
@@ -255,108 +370,196 @@ const AsistenciasPage: React.FC = () => {
               <tbody>
                 {asistencias.map((asistencia) => (
                   <tr
-                    key={asistencia.id}
+                    key={`${asistencia.idDocenteTurno}-${asistencia.fecha}-${asistencia.hora_entrada}`}
                     className="border-b border-secondary-100 hover:bg-secondary-50"
                   >
                     <td className="py-3 px-4">
-                      <div className="flex items-center">
+                      <div className="flex items-center space-x-3">
                         <Avatar
-                          name={asistencia.profesor.nombre}
-                          surname={asistencia.profesor.apellido}
-                          size="sm"
+                          src={`https://ui-avatars.com/api/?name=${asistencia.usuario_nombres}+${asistencia.usuario_apellidos}`}
+                          alt={`${asistencia.usuario_nombres} ${asistencia.usuario_apellidos}`}
                         />
-                        <span className="ml-2 font-medium">
-                          {asistencia.profesor.nombre}{" "}
-                          {asistencia.profesor.apellido}
-                        </span>
-                      </div>
-                    </td>
-                    <td className="py-3 px-4">
-                      <div>
-                        <div className="font-medium">
-                          {asistencia.turno.nombre}
-                        </div>
-                        <div className="text-xs text-secondary-500">
-                          {asistencia.turno.horaInicio} -{" "}
-                          {asistencia.turno.horaFin}
+                        <div>
+                          <div className="font-medium">
+                            {asistencia.usuario_nombres} {asistencia.usuario_apellidos}
+                          </div>
+                          <div className="text-sm text-secondary-500">
+                            {asistencia.usuario_dni}
+                          </div>
                         </div>
                       </div>
                     </td>
+                    <td className="py-3 px-4">{asistencia.fecha}</td>
+                    <td className="py-3 px-4">{asistencia.hora_entrada}</td>
+                    <td className="py-3 px-4">{asistencia.hora_salida}</td>
+                    <td className="py-3 px-4">{asistencia.tiempo_uso}</td>
                     <td className="py-3 px-4">
-                      <Badge variant="secondary">{asistencia.aula}</Badge>
+                      {getEstadoBadge(asistencia.estado)}
                     </td>
                     <td className="py-3 px-4">
-                      <div className="flex items-center">
-                        {getEstadoBadge(asistencia.estadoEntrada)}
-                        <span className="ml-2 text-secondary-700">
-                          {asistencia.horaEntrada ?? "--:--"}
-                        </span>
-                      </div>
-                    </td>
-                    <td className="py-3 px-4">
-                      <div className="flex items-center">
-                        {getEstadoBadge(asistencia.estadoSalida)}
-                        <span className="ml-2 text-secondary-700">
-                          {asistencia.horaSalida ?? "--:--"}
-                        </span>
-                      </div>
-                    </td>
-                    <td className="py-3 px-4">
-                      {asistencia.tieneInconsistencia ? (
-                        <div className="flex items-center text-error-600">
-                          <AlertTriangle size={16} className="mr-1" />
-                          <span>Inconsistencia</span>
-                        </div>
-                      ) : (
-                        <div className="flex items-center text-success-600">
-                          <CheckCircle2 size={16} className="mr-1" />
-                          <span>Correcto</span>
-                        </div>
-                      )}
-                    </td>
-                    <td className="py-3 px-4">
-                      <div className="flex space-x-1">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="text-primary-600 hover:text-primary-700"
-                        >
-                          Editar
-                        </Button>
-                        {asistencia.estadoEntrada === "pendiente" && (
-                          <Button size="sm" variant="success">
-                            Entrada
-                          </Button>
-                        )}
-                        {asistencia.estadoEntrada !== "pendiente" &&
-                          asistencia.estadoSalida === "pendiente" && (
-                            <Button size="sm" variant="warning">
-                              Salida
-                            </Button>
-                          )}
-                      </div>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleViewDetails(asistencia)}
+                      >
+                        <Eye size={18} className="text-primary-600" />
+                      </Button>
                     </td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
-
-          <div className="flex justify-between items-center mt-4">
-            <div className="text-sm text-secondary-500">
-              Mostrando 4 de 4 registros
-            </div>
-            <div className="flex space-x-1">
-              <Button variant="outline" size="sm" disabled>
-                Anterior
-              </Button>
-              <Button variant="outline" size="sm" disabled>
-                Siguiente
-              </Button>
-            </div>
-          </div>
         </CardContent>
       </Card>
+
+      {/* Modal de Detalles */}
+      <Modal
+        isOpen={showDetailModal}
+        onClose={() => setShowDetailModal(false)}
+        title="Detalles de la Asistencia"
+      >
+        {selectedAsistencia && (
+          <div className="space-y-4">
+            {/* Header con información básica */}
+            <div className="flex items-center space-x-4 pb-4 border-b border-secondary-200">
+              <Avatar
+                src={`https://ui-avatars.com/api/?name=${selectedAsistencia.usuario_nombres}+${selectedAsistencia.usuario_apellidos}`}
+                alt={`${selectedAsistencia.usuario_nombres} ${selectedAsistencia.usuario_apellidos}`}
+                size="lg"
+              />
+              <div>
+                <h3 className="text-lg font-semibold">
+                  {selectedAsistencia.usuario_nombres} {selectedAsistencia.usuario_apellidos}
+                </h3>
+                <p className="text-sm text-secondary-500">
+                  DNI: {selectedAsistencia.usuario_dni}
+                </p>
+              </div>
+            </div>
+
+            {/* Grid principal de 3 columnas */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {/* Columna 1: Información del Docente */}
+              <div className="bg-secondary-50 p-3 rounded-lg">
+                <h4 className="font-medium mb-2 text-sm text-secondary-700">Información del Docente</h4>
+                <div className="space-y-1.5">
+                  <p className="text-sm">
+                    <span className="font-medium">Tipo de Docencia:</span>
+                    <br />
+                    {selectedAsistencia.docente_tipo_docencia}
+                  </p>
+                  <p className="text-sm">
+                    <span className="font-medium">Tipo de Contrato:</span>
+                    <br />
+                    {selectedAsistencia.docente_tipo_contrato}
+                  </p>
+                  <p className="text-sm">
+                    <span className="font-medium">Contrato:</span>
+                    <br />
+                    {selectedAsistencia.docente_fecha_inicio_contrato} - {selectedAsistencia.docente_fecha_fin_contrato}
+                  </p>
+                </div>
+              </div>
+
+              {/* Columna 2: Turno Asignado */}
+              <div className="bg-secondary-50 p-3 rounded-lg">
+                <h4 className="font-medium mb-2 text-sm text-secondary-700">Turno Asignado</h4>
+                {(() => {
+                  const currentTurno = getCurrentTurno(selectedAsistencia.idDocente);
+                  return currentTurno ? (
+                    <div className="space-y-1.5">
+                      <p className="text-sm">
+                        <span className="font-medium">Tipo:</span>
+                        <br />
+                        {currentTurno.tipo_turno}
+                      </p>
+                      <p className="text-sm">
+                        <span className="font-medium">Horario:</span>
+                        <br />
+                        {currentTurno.hora_inicio} - {currentTurno.hora_fin}
+                      </p>
+                      <p className="text-sm">
+                        <span className="font-medium">Aula:</span>
+                        <br />
+                        {currentTurno.grado}° {currentTurno.seccion}
+                      </p>
+                      <p className="text-sm">
+                        <span className="font-medium">Estado:</span>
+                        <br />
+                        <span className={`inline-flex items-center ${currentTurno.estado ? "text-green-600" : "text-red-600"}`}>
+                          {currentTurno.estado ? (
+                            <CheckCircle2 size={14} className="mr-1" />
+                          ) : (
+                            <XCircle size={14} className="mr-1" />
+                          )}
+                          {currentTurno.estado ? "Activo" : "Inactivo"}
+                        </span>
+                      </p>
+                    </div>
+                  ) : (
+                    <p className="text-sm text-secondary-500">No tiene turno asignado</p>
+                  );
+                })()}
+              </div>
+
+              {/* Columna 3: Detalles de Asistencia */}
+              <div className="bg-secondary-50 p-3 rounded-lg">
+                <h4 className="font-medium mb-2 text-sm text-secondary-700">Detalles de Asistencia</h4>
+                <div className="space-y-1.5">
+                  <p className="text-sm">
+                    <span className="font-medium">Fecha:</span>
+                    <br />
+                    {selectedAsistencia.fecha}
+                  </p>
+                  <p className="text-sm">
+                    <span className="font-medium">Entrada:</span>
+                    <br />
+                    {selectedAsistencia.hora_entrada}
+                  </p>
+                  <p className="text-sm">
+                    <span className="font-medium">Salida:</span>
+                    <br />
+                    {selectedAsistencia.hora_salida}
+                  </p>
+                  <p className="text-sm">
+                    <span className="font-medium">Tiempo:</span>
+                    <br />
+                    {selectedAsistencia.tiempo_uso} minutos
+                  </p>
+                  <p className="text-sm">
+                    <span className="font-medium">Estado:</span>
+                    <br />
+                    {getEstadoBadge(selectedAsistencia.estado)}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Información de Contacto */}
+            <div className="bg-secondary-50 p-3 rounded-lg">
+              <h4 className="font-medium mb-2 text-sm text-secondary-700">Información de Contacto</h4>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <p className="text-sm">
+                  <span className="font-medium">Email:</span>
+                  <br />
+                  {selectedAsistencia.usuario_e_mail}
+                </p>
+                <p className="text-sm">
+                  <span className="font-medium">Teléfono:</span>
+                  <br />
+                  {selectedAsistencia.usuario_telefono}
+                </p>
+                <p className="text-sm">
+                  <span className="font-medium">Dirección:</span>
+                  <br />
+                  {selectedAsistencia.usuario_direccion}
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+      </Modal>
     </div>
   );
 };

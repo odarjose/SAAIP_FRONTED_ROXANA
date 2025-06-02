@@ -5,7 +5,6 @@ import {
   Users,
   Calendar,
   BookOpen,
-  Building2,
   ClipboardCheck,
   FileBarChart,
   Settings,
@@ -36,11 +35,6 @@ const navItems: NavItem[] = [
     title: "Turnos",
     href: "/turnos",
     icon: <Calendar size={20} />,
-  },
-  {
-    title: "Aulas",
-    href: "/aulas",
-    icon: <Building2 size={20} />,
   },
   {
     title: "Asistencias",
@@ -77,7 +71,7 @@ export const SidebarNav: React.FC<SidebarNavProps> = ({
             location.pathname === item.href
               ? "bg-primary-50 text-primary-700"
               : "text-secondary-600",
-            collapsed && "justify-center px-2",
+            collapsed && "justify-center px-2"
           )}
         >
           {item.icon}
@@ -90,7 +84,7 @@ export const SidebarNav: React.FC<SidebarNavProps> = ({
           className={cn(
             "flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors",
             "hover:bg-error-50 hover:text-error-600 text-secondary-600",
-            collapsed && "justify-center px-2",
+            collapsed && "justify-center px-2"
           )}
         >
           <LogOut size={20} />

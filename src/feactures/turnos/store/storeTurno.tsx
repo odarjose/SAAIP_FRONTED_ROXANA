@@ -49,7 +49,7 @@ export const useTurnoStore = create<TurnoState>((set, get) => ({
       // Actualizar la lista de turnos con el turno actualizado
       set((state) => ({
         turnos: state.turnos.map((p) =>
-          p.id_turno === id_turno ? turnoActualizado : p
+          p.idDocenteTurno === id_turno ? turnoActualizado : p
         ),
         loading: false,
       }));
@@ -64,6 +64,6 @@ export const useTurnoStore = create<TurnoState>((set, get) => ({
   
 
   getTurnoById: (id: number) => {
-    return get().turnos.find((p) => p.id_turno === id);
+    return get().turnos.find((p) => p.idDocenteTurno === id);
   },
 }));

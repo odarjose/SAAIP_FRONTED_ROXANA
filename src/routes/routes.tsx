@@ -5,7 +5,6 @@ import { Layout } from "../layout/Layout";
 import LoginPage from "../feactures/auth/pages/LoginPage";
 import Dashboard from "../feactures/dashboard/pages/DasboardPage";
 import AsistenciasPage from "../feactures/asistencia/pages/AsistenciaPage";
-import AulasPage from "../feactures/aula/pages/AulaPages";
 import DocentesPage from "../feactures/docentes/pages/DocentesPage";
 import TurnosPage from "../feactures/turnos/pages/TurnosPage";
 import ReportesPage from "../feactures/reportes/pages/ReportesPage";
@@ -23,7 +22,6 @@ export const AppRouter: React.FC = () => {
           <Route path="/" element={<Layout />}>
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/asistencias" element={<AsistenciasPage />} />
-            <Route path="/aulas" element={<AulasPage />} />
             <Route
               path="/usuarios"
               element={<UsuariosPage />}

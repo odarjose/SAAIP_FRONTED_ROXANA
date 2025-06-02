@@ -7,19 +7,42 @@ const API_URL = import.meta.env.VITE_API_URL;
 
 const mapearTurnoBackend = (turnoBackend: any): TurnoResponseDTO => {
     return {
-        id_turno: turnoBackend.idTurno ?? turnoBackend.id_turno ?? 0,
-        nombre: turnoBackend.nombre ?? '',
-        hora_inicio: turnoBackend.hora_inicio ?? '',
-        hora_fin: turnoBackend.hora_fin ?? '',
-        grado: turnoBackend.grado ?? '',
-        seccion: turnoBackend.seccion ?? '',
+      idDocenteTurno: turnoBackend.idDocenteTurno ?? 0,
+      idDocente: turnoBackend.idDocente ?? 0,
+      fecha_asignacion: turnoBackend.fecha_asignacion ?? '',
+      estado: turnoBackend.estado ?? false,
+      tipo_turno: turnoBackend.tipo_turno ?? '',
+      hora_inicio: turnoBackend.hora_inicio ?? '',
+      hora_fin: turnoBackend.hora_fin ?? '',
+      grado: turnoBackend.grado ?? 0,
+      seccion: turnoBackend.seccion ?? '',
+  
+      // Información del docente
+      docente_idDocente: turnoBackend.docente_idDocente ?? 0,
+      docente_idUsuario: turnoBackend.docente_idUsuario ?? 0,
+      docente_tipo_docencia: turnoBackend.docente_tipo_docencia ?? '',
+      docente_tipo_contrato: turnoBackend.docente_tipo_contrato ?? '',
+      docente_fecha_inicio_contrato: turnoBackend.docente_fecha_inicio_contrato ?? '',
+      docente_fecha_fin_contrato: turnoBackend.docente_fecha_fin_contrato ?? '',
+      docente_estado: turnoBackend.docente_estado ?? false,
+  
+      // Información del usuario
+      usuario_idUsuario: turnoBackend.usuario_idUsuario ?? 0,
+      usuario_nombres: turnoBackend.usuario_nombres ?? '',
+      usuario_apellidos: turnoBackend.usuario_apellidos ?? '',
+      usuario_dni: turnoBackend.usuario_dni ?? '',
+      usuario_telefono: turnoBackend.usuario_telefono ?? '',
+      usuario_direccion: turnoBackend.usuario_direccion ?? '',
+      usuario_fecha_nacimiento: turnoBackend.usuario_fecha_nacimiento ?? '',
+      usuario_e_mail: turnoBackend.usuario_e_mail ?? '',
+      usuario_estado: turnoBackend.usuario_estado ?? false
     };
-}
+  };
 
 export const turnoApi={
     getTurnos: async (): Promise<TurnoResponseDTO[]> => {
         try {
-            const response = await axios.get(`${API_URL}/turnos`);
+            const response = await axios.get(`${API_URL}/turnos/list`);
             const turnosMapeados = response.data.map(mapearTurnoBackend);
             return turnosMapeados;
         } catch (error) {
@@ -49,7 +72,7 @@ export const turnoApi={
 
             const dataToSend = {
                 ...turno,
-                id_turno: id,
+                idDocenteTurno: id,
                 
             };
 
