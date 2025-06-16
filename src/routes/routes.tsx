@@ -31,14 +31,8 @@ export const AppRouter: React.FC = () => {
               element={<DocentesPage />}
             />
             <Route path="/turnos" element={<TurnosPage />} />
-            <Route
-              path="/reportes"
-              element={<ReportesPage />}
-            />
-            <Route
-              path="/reportes/aula-innovacion"
-              element={<ReporteAulaInnovacionPage />}
-            />
+            
+            
             <Route
               path="/configuracion"
               element={
