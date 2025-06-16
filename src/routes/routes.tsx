@@ -7,8 +7,7 @@ import Dashboard from "../feactures/dashboard/pages/DasboardPage";
 import AsistenciasPage from "../feactures/asistencia/pages/AsistenciaPage";
 import DocentesPage from "../feactures/docentes/pages/DocentesPage";
 import TurnosPage from "../feactures/turnos/pages/TurnosPage";
-import ReportesPage from "../feactures/reportes/pages/ReportesPage";
-import ReporteAulaInnovacionPage from "../feactures/reportes/pages/ReporteAulaInnovacionPage";
+
 import UsuariosPage from "../feactures/usuarios/pages/UsuariosPage";
 import ConfiguracionPage from "../feactures/configuracion/page/ConfiguracionPage";
 
