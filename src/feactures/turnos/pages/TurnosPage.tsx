@@ -19,6 +19,8 @@ import {
   CheckCircle2,
   XCircle,
 } from "lucide-react";
+import { ReportButton } from "../../../shared/components/ReportButton";
+import { generatePDFReport } from "../../../shared/lib/reportUtils";
 
 import { useTurnoStore } from "../store/storeTurno";
 import { TurnoFormModal } from "./TurnoFormPage";
@@ -106,6 +108,42 @@ const TurnosPage: React.FC = () => {
       return { success: false, error: "Error al guardar el turno" };
     }
   };
+
+  const handleGenerateReport = () => {
+    const headers = [
+      "ID",
+      "Profesor",
+      "Tipo Docencia",
+      "Tipo Turno",
+      "Hora Inicio",
+      "Hora Fin",
+      "Grado",
+      "Sección",
+      "Estado"
+    ];
+
+    const reportData = turnosFiltrados.map(turno => ({
+      id: turno.idDocenteTurno,
+      profesor: `${turno.usuario_nombres} ${turno.usuario_apellidos}`,
+      tipo_docencia: turno.docente_tipo_docencia,
+      tipo_turno: turno.tipo_turno,
+      hora_inicio: turno.hora_inicio,
+      hora_fin: turno.hora_fin,
+      grado: turno.grado,
+      seccion: turno.seccion,
+      estado: turno.estado ? 'Activo' : 'Inactivo'
+    }));
+
+    generatePDFReport({
+      title: "Reporte de Turnos",
+      headers,
+      data: reportData,
+      filters: {
+        Búsqueda: searchTerm || ''
+      }
+    });
+  };
+
   console.log(selectedTurno)
 
   return (
@@ -120,6 +158,7 @@ const TurnosPage: React.FC = () => {
           </p>
         </div>
         <div className="mt-4 md:mt-0 flex space-x-2">
+          <ReportButton onClick={handleGenerateReport} />
           <Button onClick={handleOpenNuevo}>
             <Plus size={16} className="mr-2" />
             Nuevo Turno

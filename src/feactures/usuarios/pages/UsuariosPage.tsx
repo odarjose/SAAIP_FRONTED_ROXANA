@@ -22,6 +22,9 @@ import {
   Mail
 } from 'lucide-react';
 import { formatDate } from '../../../shared/lib/Utils';
+import { ReportButton } from "../../../shared/components/ReportButton";
+import { generatePDFReport } from "../../../shared/lib/reportUtils";
+
 const UsuariosPage: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
 
@@ -84,6 +87,37 @@ const UsuariosPage: React.FC = () => {
       : <Badge variant="secondary">Inactivo</Badge>;
   };
 
+  const handleGenerateReport = () => {
+    const headers = [
+      "ID",
+      "Nombre",
+      "Apellido",
+      "Email",
+      "Rol",
+      "Estado",
+      "Último Acceso"
+    ];
+
+    const reportData = usuarios.map(usuario => ({
+      id: usuario.id,
+      nombre: usuario.nombre,
+      apellido: usuario.apellido,
+      email: usuario.email,
+      rol: usuario.rol.charAt(0).toUpperCase() + usuario.rol.slice(1),
+      estado: usuario.estado.charAt(0).toUpperCase() + usuario.estado.slice(1),
+      ultimo_acceso: formatDate(usuario.ultimoAcceso, 'dd/MM/yyyy HH:mm')
+    }));
+
+    generatePDFReport({
+      title: "Reporte de Usuarios",
+      headers,
+      data: reportData,
+      filters: {
+        Búsqueda: searchTerm || ''
+      }
+    });
+  };
+
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
@@ -92,6 +126,7 @@ const UsuariosPage: React.FC = () => {
           <p className="text-secondary-600">Administración de usuarios del sistema</p>
         </div>
         <div className="mt-4 md:mt-0 flex space-x-2">
+          <ReportButton onClick={handleGenerateReport} />
           <Button>
             <UserPlus size={16} className="mr-2" />
             Nuevo Usuario

@@ -18,6 +18,8 @@ import { DocenteResponseDTO, PartialDocente } from '../interface/InterfaceDocent
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../../../shared/components/Dialog';
 import { DocentesModalForm, DocenteUpdateForm } from "../pages/DocenteFormPage";
 import { formatDate } from '../../../shared/lib/Utils';
+import { ReportButton } from "../../../shared/components/ReportButton";
+import { generatePDFReport } from "../../../shared/lib/reportUtils";
 
 const DocentesPage: React.FC = () => {
   const {
@@ -121,6 +123,46 @@ const DocentesPage: React.FC = () => {
     }
   };
 
+  const handleGenerateReport = () => {
+    const headers = [
+      "ID",
+      "Nombres",
+      "Apellidos",
+      "DNI",
+      "Email",
+      "Teléfono",
+      "Tipo Docencia",
+      "Tipo Contrato",
+      "Fecha Inicio",
+      "Fecha Fin",
+      "Estado"
+    ];
+
+    const reportData = profesores.map(docente => ({
+      id: docente.id_docente,
+      nombres: docente.nombres,
+      apellidos: docente.apellidos,
+      dni: docente.dni,
+      email: docente.e_mail || 'No especificado',
+      telefono: docente.telefono || 'No especificado',
+      tipo_docencia: docente.tipo_docencia || 'No especificado',
+      tipo_contrato: docente.tipo_contrato || 'No especificado',
+      fecha_inicio: formatDate(docente.fecha_inicio_contrato, 'dd/MM/yyyy') || 'No especificada',
+      fecha_fin: formatDate(docente.fecha_fin_contrato, 'dd/MM/yyyy') || 'No especificada',
+      estado: docente.estado ? 'Activo' : 'Inactivo'
+    }));
+
+    generatePDFReport({
+      title: "Reporte de Docentes",
+      headers,
+      data: reportData,
+      filters: {
+        Estado: estadoFiltro !== 'todos' ? estadoOptions.find(e => e.value === estadoFiltro)?.label || '' : '',
+        Búsqueda: searchTerm || ''
+      }
+    });
+  };
+
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
@@ -133,6 +175,7 @@ const DocentesPage: React.FC = () => {
           </p>
         </div>
         <div className="mt-4 md:mt-0 flex space-x-2 w-full md:w-auto">
+          <ReportButton onClick={handleGenerateReport} />
           <Button onClick={() => setIsModalOpen(true)} className="w-full md:w-auto">
             <Plus size={16} className="mr-2" />
             Nuevo Profesor

@@ -26,6 +26,8 @@ import {
 } from "lucide-react";
 import { formatDate } from "../../../shared/lib/Utils";
 import { Modal } from "../../../shared/components/Modal";
+import { ReportButton } from "../../../shared/components/ReportButton";
+import { generatePDFReport } from "../../../shared/lib/reportUtils";
 
 const AsistenciasPage: React.FC = () => {
   const {
@@ -167,6 +169,57 @@ const AsistenciasPage: React.FC = () => {
     return turnos.find(turno => turno.idDocente === docenteId && turno.estado);
   };
 
+  const handleGenerateReport = () => {
+    console.log('Generando reporte de asistencias...');
+    console.log('Asistencias:', asistencias);
+
+    const headers = [
+      "ID",
+      "Profesor",
+      "Fecha",
+      "Hora Entrada",
+      "Hora Salida",
+      "Tiempo Uso",
+      "Estado"
+    ];
+
+    const reportData = asistencias.map(asistencia => {
+      console.log('Procesando asistencia:', asistencia);
+      return {
+        id: asistencia.idDocenteTurno,
+        profesor: `${asistencia.usuario_nombres} ${asistencia.usuario_apellidos}`,
+        fecha: asistencia.fecha,
+        hora_entrada: asistencia.hora_entrada,
+        hora_salida: asistencia.hora_salida,
+        tiempo_uso: asistencia.tiempo_uso,
+        estado: asistencia.estado
+      };
+    });
+
+    console.log('Datos del reporte:', reportData);
+    console.log('Filtros aplicados:', {
+      Fecha: filtro.fecha,
+      Profesor: filtro.profesor ? profesoresOptions.find(p => p.value === filtro.profesor)?.label || '' : '',
+      Estado: filtro.estado ? estadosOptions.find(e => e.value === filtro.estado)?.label || '' : ''
+    });
+
+    try {
+      generatePDFReport({
+        title: "Reporte de Asistencias",
+        headers,
+        data: reportData,
+        filters: {
+          Fecha: filtro.fecha,
+          Profesor: filtro.profesor ? profesoresOptions.find(p => p.value === filtro.profesor)?.label || '' : '',
+          Estado: filtro.estado ? estadosOptions.find(e => e.value === filtro.estado)?.label || '' : ''
+        }
+      });
+      console.log('Reporte generado exitosamente');
+    } catch (error) {
+      console.error('Error al generar el reporte:', error);
+    }
+  };
+
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
@@ -179,6 +232,7 @@ const AsistenciasPage: React.FC = () => {
           </p>
         </div>
         <div className="mt-4 md:mt-0 flex space-x-2">
+          <ReportButton onClick={handleGenerateReport} />
           <Button onClick={() => setShowRegisterForm(true)}>
             <CheckCircle2 size={16} className="mr-2" />
             Registro de asistencia
