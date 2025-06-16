@@ -5,13 +5,13 @@ import { FileText } from 'lucide-react';
 interface ReportButtonProps {
   onClick: () => void;
   title?: string;
-  variant?: 'default' | 'outline';
+  variant?: 'primary' | 'outline';
 }
 
 export const ReportButton: React.FC<ReportButtonProps> = ({
   onClick,
   title = 'Generar Reporte',
-  variant = 'default'
+  variant = 'primary'
 }) => {
   return (
     <Button onClick={onClick} variant={variant}>
