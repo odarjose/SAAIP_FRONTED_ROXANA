@@ -137,19 +137,15 @@ const AsistenciasPage: React.FC = () => {
         if (newAsistencia.hora_entrada && newAsistencia.hora_salida) {
           const [entradaHora, entradaMin] = newAsistencia.hora_entrada.split(':').map(Number);
           const [salidaHora, salidaMin] = newAsistencia.hora_salida.split(':').map(Number);
-          
           // Convertir a minutos totales
           const entradaTotalMin = entradaHora * 60 + entradaMin;
           const salidaTotalMin = salidaHora * 60 + salidaMin;
-          
           // Calcular diferencia
           let diffMins = salidaTotalMin - entradaTotalMin;
-          
           // Si la hora de salida es menor que la de entrada, asumimos que es al día siguiente
           if (diffMins < 0) {
             diffMins += 24 * 60; // Agregar 24 horas en minutos
           }
-          
           newAsistencia.tiempo_uso = diffMins;
         }
       }
@@ -236,6 +232,13 @@ const AsistenciasPage: React.FC = () => {
       console.error('Error al generar el reporte:', error);
     }
   };
+
+  // Utilidad para mostrar minutos como hh:mm:ss
+  function minutosAHoraString(minutos: number): string {
+    const horas = Math.floor(minutos / 60);
+    const mins = minutos % 60;
+    return `${horas.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:00`;
+  }
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -478,7 +481,7 @@ const AsistenciasPage: React.FC = () => {
                     <td className="py-3 px-4">{asistencia.fecha}</td>
                     <td className="py-3 px-4">{asistencia.hora_entrada}</td>
                     <td className="py-3 px-4">{asistencia.hora_salida}</td>
-                    <td className="py-3 px-4">{asistencia.tiempo_uso}</td>
+                    <td className="py-3 px-4">{minutosAHoraString(asistencia.tiempo_uso)}</td>
                     <td className="py-3 px-4">
                       {getEstadoBadge(asistencia.estado)}
                     </td>
@@ -617,7 +620,7 @@ const AsistenciasPage: React.FC = () => {
                   <p className="text-sm">
                     <span className="font-medium">Tiempo:</span>
                     <br />
-                    {selectedAsistencia.tiempo_uso} minutos
+                    {minutosAHoraString(selectedAsistencia.tiempo_uso)}
                   </p>
                   <p className="text-sm">
                     <span className="font-medium">Estado:</span>
