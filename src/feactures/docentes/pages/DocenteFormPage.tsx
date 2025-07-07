@@ -31,7 +31,7 @@ export const DocentesModalForm: React.FC<DocentesModalFormProps> = ({ isOpen, on
     fecha_inicio_contrato: '',
     fecha_fin_contrato: '',
     tipo_contrato: 'NOMBRAMIENTO' as TipoContrato,
-    estado: true,
+    estado: "activo",
   });
 
   const [error, setError] = useState<string | null>(null);
@@ -39,7 +39,7 @@ export const DocentesModalForm: React.FC<DocentesModalFormProps> = ({ isOpen, on
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     if (name === "estado") {
-      setFormData((prev) => ({ ...prev, estado: value === "activo" }));
+      setFormData((prev) => ({ ...prev, estado: value as "activo" | "inactivo" }));
     } else {
       setFormData((prev) => ({ ...prev, [name]: value }));
     }
@@ -64,7 +64,7 @@ export const DocentesModalForm: React.FC<DocentesModalFormProps> = ({ isOpen, on
         fecha_inicio_contrato: '',
         fecha_fin_contrato: '',
         tipo_contrato: 'NOMBRAMIENTO' as TipoContrato,
-        estado: true,
+        estado: "activo",
       });
       // El modal se cerrará desde el componente padre
     } else {
@@ -149,7 +149,7 @@ export const DocentesModalForm: React.FC<DocentesModalFormProps> = ({ isOpen, on
             <label className="block text-sm font-medium text-gray-700 mb-1">Estado</label>
             <select
               name="estado"
-              value={formData.estado ? "activo" : "inactivo"}
+              value={formData.estado || "activo"}
               onChange={handleChange}
               className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:ring focus:ring-primary-500 focus:outline-none"
             >
@@ -194,7 +194,7 @@ export const DocenteUpdateForm: React.FC<DocenteUpdateFormProps> = ({ isOpen, on
         fecha_inicio_contrato: docente.fecha_inicio_contrato,
         fecha_fin_contrato: docente.fecha_fin_contrato,
         tipo_contrato: docente.tipo_contrato,
-        estado: docente.estado,
+        estado: docente.estado ? "activo" : "inactivo",
         id_usuario: docente.id_usuario,
         contraseña: '',
       });
@@ -204,7 +204,7 @@ export const DocenteUpdateForm: React.FC<DocenteUpdateFormProps> = ({ isOpen, on
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     if (name === "estado") {
-      setFormData((prev) => ({ ...prev, estado: value === "activo" }));
+      setFormData((prev) => ({ ...prev, estado: value as "activo" | "inactivo" }));
     } else {
       setFormData((prev) => ({ ...prev, [name]: value }));
     }

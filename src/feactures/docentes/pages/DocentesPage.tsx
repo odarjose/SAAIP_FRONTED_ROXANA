@@ -293,7 +293,7 @@ const DocentesPage: React.FC = () => {
                 <Button variant="outline" onClick={handleCerrarDetalle}>Cerrar</Button>
                 <Button 
                   variant={detalleDocente.estado ? "error" : "success"}
-                  onClick={() => handleToggleEstado(detalleDocente.id_docente, detalleDocente.estado)}
+                  onClick={() => handleToggleEstado(detalleDocente.id_docente, !!detalleDocente.estado)}
                 >
                   {detalleDocente.estado ? 'Desactivar' : 'Activar'}
                 </Button>

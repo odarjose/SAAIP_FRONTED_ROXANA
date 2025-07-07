@@ -49,7 +49,11 @@ export const DocentesList: React.FC<DocentesListProps> = ({ profesores, onVer, o
                     <p className="text-sm text-secondary-600">{profesor.tipo_docencia}</p>
                   </div>
                 </div>
-                {getEstadoBadge(profesor.estado)}
+                {getEstadoBadge(
+                  typeof profesor.estado === "boolean"
+                    ? profesor.estado
+                    : profesor.estado === "activo"
+                )}
               </div>
 
               <div className="space-y-2 text-sm">

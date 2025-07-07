@@ -109,8 +109,8 @@ export const docenteApi = {
             const docentesMapeados = response.data.map((docente: any) => {
                 console.log('🔄 Mapping teacher:', docente);
                 const mapeado = mapearDocenteBackend(docente);
-                // Forzar el estado a false para inactivos
-                mapeado.estado = false;
+                // Forzar el estado a "inactivo" para inactivos
+                mapeado.estado = "inactivo";
                 console.log('✅ Mapped result:', mapeado);
                 return mapeado;
             });

@@ -93,7 +93,7 @@ export const useDocenteStore = create<DocentesState>((set, get) => ({
       // Actualizar el estado local primero
       set((state) => ({
         profesores: state.profesores.map((p) =>
-          p.id_docente === id ? { ...p, estado: nuevoEstado } : p
+          p.id_docente === id ? { ...p, estado: nuevoEstado ? "activo" : "inactivo" } : p
         )
       }));
 
@@ -124,7 +124,7 @@ export const useDocenteStore = create<DocentesState>((set, get) => ({
       // Revertir el cambio en caso de error
       set((state) => ({
         profesores: state.profesores.map((p) =>
-          p.id_docente === id ? { ...p, estado: !nuevoEstado } : p
+          p.id_docente === id ? { ...p, estado: nuevoEstado ? "inactivo" : "activo" } : p
         )
       }));
       const errorMessage = error.response?.data?.detail || 'Error al cambiar el estado del profesor';
