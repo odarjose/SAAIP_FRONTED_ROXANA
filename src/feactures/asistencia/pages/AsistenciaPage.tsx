@@ -34,6 +34,11 @@ const AsistenciasPage: React.FC = () => {
     asistencias,
     fetchAsistencias,
     createAsistencia,
+    filtros,
+    setFiltros,
+    fetchAsistenciasFiltradas,
+    limpiarFiltros,
+    loading,
   } = useAsistenciaStore();
 
   const {
@@ -49,11 +54,6 @@ const AsistenciasPage: React.FC = () => {
   const [showRegisterForm, setShowRegisterForm] = useState(false);
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [selectedAsistencia, setSelectedAsistencia] = useState<AsistenciaResponseDTO | null>(null);
-  const [filtro, setFiltro] = useState({
-    fecha: formatDate(new Date(), "yyyy-MM-dd"),
-    profesor: "",
-    estado: "",
-  });
 
   const [newAsistencia, setNewAsistencia] = useState<RegisterAsistencia>({
     id_docente: 0,
@@ -69,6 +69,8 @@ const AsistenciasPage: React.FC = () => {
     fetchProfesores();
     fetchTurnos();
   }, [fetchAsistencias, fetchProfesores, fetchTurnos]);
+
+
 
   // Filtrar docentes que tienen turno activo
   const docentesConTurnoActivo = profesores.filter(docente => {
@@ -90,6 +92,21 @@ const AsistenciasPage: React.FC = () => {
     { value: "REGISTRADO", label: "Registrado" },
     { value: "INASISTENCIA", label: "Inasistencia" }
   ];
+
+  const handleFiltroChange = (campo: keyof typeof filtros, valor: string | number | null) => {
+    console.log(`🔄 Cambiando filtro ${campo}:`, valor);
+    setFiltros({ [campo]: valor });
+  };
+
+  const handleBuscar = () => {
+    console.log('🔍 Aplicando filtros:', filtros);
+    fetchAsistenciasFiltradas(filtros);
+  };
+
+  const handleLimpiarFiltros = () => {
+    limpiarFiltros();
+    fetchAsistencias(); // Cargar todas las asistencias
+  };
 
   const handleRegisterSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -198,9 +215,9 @@ const AsistenciasPage: React.FC = () => {
 
     console.log('Datos del reporte:', reportData);
     console.log('Filtros aplicados:', {
-      Fecha: filtro.fecha,
-      Profesor: filtro.profesor ? profesoresOptions.find(p => p.value === filtro.profesor)?.label || '' : '',
-      Estado: filtro.estado ? estadosOptions.find(e => e.value === filtro.estado)?.label || '' : ''
+      Fecha: filtros.fecha,
+      Profesor: filtros.id_docente ? profesoresOptions.find(p => p.value === filtros.id_docente?.toString())?.label || '' : '',
+      Estado: filtros.estado ? estadosOptions.find(e => e.value === filtros.estado)?.label || '' : ''
     });
 
     try {
@@ -209,9 +226,9 @@ const AsistenciasPage: React.FC = () => {
         headers,
         data: reportData,
         filters: {
-          Fecha: filtro.fecha,
-          Profesor: filtro.profesor ? profesoresOptions.find(p => p.value === filtro.profesor)?.label || '' : '',
-          Estado: filtro.estado ? estadosOptions.find(e => e.value === filtro.estado)?.label || '' : ''
+          Fecha: filtros.fecha,
+          Profesor: filtros.id_docente ? profesoresOptions.find(p => p.value === filtros.id_docente?.toString())?.label || '' : '',
+          Estado: filtros.estado ? estadosOptions.find(e => e.value === filtros.estado)?.label || '' : ''
         }
       });
       console.log('Reporte generado exitosamente');
@@ -253,39 +270,45 @@ const AsistenciasPage: React.FC = () => {
               <Calendar size={18} className="text-secondary-400" />
               <Input
                 type="date"
-                value={filtro.fecha}
+                value={filtros.fecha}
                 onChange={(e) =>
-                  setFiltro({ ...filtro, fecha: e.target.value })
+                  handleFiltroChange('fecha', e.target.value)
                 }
               />
             </div>
 
             <Select
               options={profesoresOptions}
-              value={filtro.profesor}
+              value={filtros.id_docente?.toString() || ""}
               onChange={(e) =>
-                setFiltro({ ...filtro, profesor: e.target.value })
+                handleFiltroChange('id_docente', e.target.value ? parseInt(e.target.value) : null)
               }
               label="Profesor"
             />
 
             <Select
               options={estadosOptions}
-              value={filtro.estado}
-              onChange={(e) => setFiltro({ ...filtro, estado: e.target.value })}
+              value={filtros.estado}
+              onChange={(e) => handleFiltroChange('estado', e.target.value)}
               label="Estado"
             />
           </div>
 
           <div className="flex justify-end mt-4">
-            <Button variant="outline" className="mr-2" onClick={() => setFiltro({
-              fecha: formatDate(new Date(), "yyyy-MM-dd"),
-              profesor: "",
-              estado: "",
-            })}>
+            <Button 
+              variant="outline" 
+              className="mr-2" 
+              onClick={() => {
+                console.log('🔍 Estado actual de filtros:', filtros);
+                console.log('📊 Asistencias actuales:', asistencias.length);
+              }}
+            >
+              Debug
+            </Button>
+            <Button variant="outline" className="mr-2" onClick={handleLimpiarFiltros}>
               Limpiar
             </Button>
-            <Button onClick={() => fetchAsistencias()}>
+            <Button onClick={handleBuscar}>
               <Search size={16} className="mr-2" />
               Buscar
             </Button>
@@ -387,6 +410,9 @@ const AsistenciasPage: React.FC = () => {
             <div className="flex items-center">
               <Clock size={20} className="mr-2 text-primary-600" />
               Registro de asistencias
+              <span className="ml-2 text-sm font-normal text-secondary-500">
+                ({asistencias.length} registros)
+              </span>
             </div>
             <div className="text-sm font-normal text-secondary-500">
               {formatDate(new Date(), "EEEE, d MMMM yyyy")}
@@ -394,6 +420,12 @@ const AsistenciasPage: React.FC = () => {
           </CardTitle>
         </CardHeader>
         <CardContent>
+          {loading && (
+            <div className="flex justify-center items-center py-8">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
+              <span className="ml-2 text-secondary-600">Cargando asistencias...</span>
+            </div>
+          )}
           <div className="overflow-x-auto">
             <table className="w-full border-collapse">
               <thead>
@@ -463,6 +495,12 @@ const AsistenciasPage: React.FC = () => {
                 ))}
               </tbody>
             </table>
+            {!loading && asistencias.length === 0 && (
+              <div className="text-center py-8 text-secondary-500">
+                <p>No se encontraron asistencias con los filtros aplicados.</p>
+                <p className="text-sm mt-1">Intenta cambiar los filtros de búsqueda.</p>
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>

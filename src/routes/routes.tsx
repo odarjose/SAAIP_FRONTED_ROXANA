@@ -2,7 +2,7 @@ import React from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "../feactures/auth/context/AuthProvider";
 import { Layout } from "../layout/Layout";
-import LoginPage from "../feactures/auth/pages/LoginPage";
+import LoginPage from "../feactures/usuarios/pages/LoginPage";
 import Dashboard from "../feactures/dashboard/pages/DasboardPage";
 import AsistenciasPage from "../feactures/asistencia/pages/AsistenciaPage";
 import DocentesPage from "../feactures/docentes/pages/DocentesPage";
@@ -10,6 +10,7 @@ import TurnosPage from "../feactures/turnos/pages/TurnosPage";
 
 import UsuariosPage from "../feactures/usuarios/pages/UsuariosPage";
 import ConfiguracionPage from "../feactures/configuracion/page/ConfiguracionPage";
+import ReportesPage from "../feactures/reportes/pages/ReportesPage";
 
 export const AppRouter: React.FC = () => {
   return (
@@ -31,7 +32,7 @@ export const AppRouter: React.FC = () => {
               element={<DocentesPage />}
             />
             <Route path="/turnos" element={<TurnosPage />} />
-            
+            <Route path="/reportes" element={<ReportesPage />} />
             
             <Route
               path="/configuracion"

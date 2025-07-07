@@ -13,7 +13,7 @@ const mapearAsistenciaBackend = (asistenciaBackend: any): AsistenciaResponseDTO 
       hora_entrada: asistenciaBackend.hora_entrada ?? '',
       hora_salida: asistenciaBackend.hora_salida ?? '',
       tiempo_uso: asistenciaBackend.tiempo_uso ?? 0,
-      estado: asistenciaBackend.estado ?? false,
+      estado: asistenciaBackend.estado ?? '',
       
   
       // Información del docente
@@ -50,6 +50,29 @@ export interface Docente {
 export const asistenciaApi = {
     getAsistencias: async (): Promise<AsistenciaResponseDTO[]> => {
         const response = await axios.get(`${API_URL}/asistencias/list`);
+        const asistenciasMapeadas = response.data.map(mapearAsistenciaBackend);
+        return asistenciasMapeadas;
+    },
+
+    getAsistenciasFiltradas: async (filtros: {
+        fecha?: string;
+        id_docente?: number;
+        estado?: string;
+    }): Promise<AsistenciaResponseDTO[]> => {
+        const params = new URLSearchParams();
+        
+        if (filtros.fecha) {
+            params.append('fecha', filtros.fecha);
+        }
+        if (filtros.id_docente) {
+            params.append('id_docente', filtros.id_docente.toString());
+        }
+        if (filtros.estado) {
+            params.append('estado', filtros.estado);
+        }
+
+        const url = `${API_URL}/asistencias/list${params.toString() ? `?${params.toString()}` : ''}`;
+        const response = await axios.get(url);
         const asistenciasMapeadas = response.data.map(mapearAsistenciaBackend);
         return asistenciasMapeadas;
     },
