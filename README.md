@@ -1,54 +1,52 @@
-# React + TypeScript + Vite
+# SAAIP - Sistema de Gestión de Asistencia Docente (AIP) 🏫💻
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+[![Vercel](https://img.shields.io/badge/Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white)](https://saaip.vercel.app)
+[![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)](https://reactjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
 
-Currently, two official plugins are available:
+## 📝 Descripción
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+**SAAIP** es una plataforma web administrativa desarrollada para la **I.E. ‘Nuestra Señora de Lourdes’ – Paita (2025)**. El sistema está diseñado para modernizar y optimizar el control de asistencia de los docentes al Aula de Innovación Pedagógica (AIP).
 
-## Expanding the ESLint configuration
+Anteriormente, este proceso se realizaba de forma manual, lo que dificultaba el seguimiento y la generación de reportes. SAAIP digitaliza estas tareas, permitiendo un monitoreo en tiempo real del uso del aula y una gestión eficiente de las actividades pedagógicas.
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+---
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
+## ✨ Características Principales
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+- 📊 **Panel de Control (Dashboard):** Visualización intuitiva del estado actual del aula y estadísticas de uso.
+- 🕒 **Control de Asistencia:** Registro rápido y preciso de ingresos y salidas de docentes.
+- 📝 **Monitoreo Pedagógico:** Seguimiento de las actividades realizadas por los docentes en el AIP.
+- 📱 **Diseño Responsivo:** Interfaz adaptada para dispositivos móviles, tablets y escritorio.
+- ⚡ **Alta Velocidad:** Desarrollado con Vite para una experiencia de usuario fluida y sin tiempos de carga prolongados.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+---
 
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
-```
+## 🚀 Tecnologías Utilizadas
+
+Este proyecto fue construido utilizando lo mejor del ecosistema Frontend actual:
+
+- **React.js:** Biblioteca principal para la interfaz de usuario.
+- **TypeScript:** Para un desarrollo robusto con tipado estático.
+- **Tailwind CSS:** Para un diseño moderno, limpio y altamente personalizado.
+- **Vite:** Herramienta de construcción de última generación para un desarrollo rápido.
+- **Lucide Icons:** Iconografía moderna y minimalista.
+
+---
+
+## 📸 Capturas de Pantalla
+
+| Dashboard | Reportes | Configuración |
+| :---: | :---: | :---: |
+| ![Dashboard](/assets/projectos/dasboard.png) | ![Reportes](/assets/projectos/reportes.png) | ![Ajustes](/assets/projectos/settings.png) |
+
+---
+
+## 🛠️ Instalación y Configuración
+
+Si deseas ejecutar este proyecto localmente, sigue estos pasos:
+
+1. **Clonar el repositorio:**
+   ```bash
+   git clone https://github.com/odarjose/SAAIP_FRONTED_ROXANA.git
